@@ -23,19 +23,19 @@ async function getUsers(
     );
   }
 
+  const totalUsers = allUsers.length;
+  if (!page_size || page_size <= 0) {
+    page_size = totalUsers;
+  }
+
+  const totalPages = Math.ceil(totalUsers / page_size);
+
   const sort_fn =
     sort_order === 'asc'
       ? (a, b) => a[sort_field].localeCompare(b[sort_field])
       : (a, b) => b[sort_field].localeCompare(a[sort_field]);
 
   const sortedUsers = allUsers.sort(sort_fn);
-
-  const totalUsers = sortedUsers.length;
-  const totalPages = Math.ceil(totalUsers / page_size);
-
-  if (page_size === 0) {
-    page_size = totalUsers;
-  }
 
   const page_number_clamped = Math.min(Math.max(page_number, 1), totalPages);
   const startIndex = (page_number_clamped - 1) * page_size;
@@ -49,18 +49,15 @@ async function getUsers(
       email: user.email,
     }));
 
-  const paginationList = Object.assign(
-    {},
-    {
-      page_number: page_number_clamped,
-      page_size,
-      count: formattedUsers.length,
-      total_pages: totalPages,
-      has_previous_page: page_number_clamped > 1,
-      has_next_page: page_number_clamped < totalPages,
-      data: formattedUsers,
-    }
-  );
+  const paginationList = {
+    page_number: page_number_clamped,
+    page_size,
+    count: formattedUsers.length,
+    total_pages: totalPages,
+    has_previous_page: page_number_clamped > 1,
+    has_next_page: page_number_clamped < totalPages,
+    data: formattedUsers,
+  };
 
   return paginationList;
 }
